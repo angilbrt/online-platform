@@ -1,0 +1,275 @@
+<!-- templates/courses/course_detail.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.title }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'stylescourse.css' %}">
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+    animation: gradientAnimation 15s ease infinite;
+}
+
+@keyframes gradientAnimation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.site-header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.site-header .logo {
+    display: flex;
+    align-items: center;
+}
+
+.site-header .logo img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.site-header .company-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333333;
+}
+
+.site-header .main-nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.site-header .main-nav ul li {
+    margin-right: 20px;
+}
+
+.site-header .main-nav ul li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.site-header .main-nav ul li a:hover {
+    color: #0000CD;
+}
+
+.course-page {
+    display: flex;
+    flex: 1;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.module-panel {
+    width: 300px;
+    background-color: #ffffff;
+    padding: 20px;
+    margin-right: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.module-panel h3 {
+    margin-top: 0;
+    color: #2F4F4F;
+    font-size: 1.2rem;
+}
+
+.lessons-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.lessons-list li {
+    margin-bottom: 10px;
+}
+
+.lessons-list li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 1rem;
+    transition: color 0.3s, font-weight 0.3s;
+}
+
+.lessons-list li a:hover {
+    color: #0000CD;
+    font-weight: bold;
+}
+
+.lesson-video {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#lesson-video {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    outline: none;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.video-tabs {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    cursor: pointer;
+    border: none;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.tab-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.tab-btn.active {
+    background-color: #0000CD;
+    color: #fff;
+}
+
+.tab-content {
+    display: none;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.site-footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #f0f0f0;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.site-footer p {
+    margin: 0;
+    color: #333;
+}
+
+</style>
+<body>
+<header class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <button class="btn btn-outline-light" onclick="window.history.back();">Назад</button>
+        <span class="navbar-brand mb-0 h1">Название Компании</span>
+
+        <a href="{% url 'logout' %}" class="btn btn-outline-light">Выйти</a>
+    </div>
+
+</header>
+<main class="course-page">
+    <div class="module-panel">
+        {% for module in course.modules.all %}
+        <h3>{{ module.title }}</h3>
+        <ul class="lessons-list">
+            {% for lesson in module.lessons.all %}
+            <li><a href="#" data-video-url="{{ lesson.video.url }}" data-pdf-url="{{ lesson.pdf.url }}">{{ lesson.title }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+    <div class="lesson-video">
+        <video id="lesson-video" controls>
+            <source src="" type="video/mp4">
+            Ваш браузер не поддерживает видео.
+        </video>
+               <div class="video-tabs">
+            <button class="tab-btn active" data-tab="video">Видео урока</button>
+            <button class="tab-btn" data-tab="materials">Дополнительные материалы</button>
+            <button class="tab-btn" data-tab="questions">Вопросы</button>
+        </div>
+        <div class="tab-content active" id="video">
+            <!-- Video content will be loaded here -->
+        </div>
+        <div class="tab-content" id="materials">
+            <a id="pdf-link" href="#" target="_blank">Скачать PDF</a>
+        </div>
+        <div class="tab-content" id="questions">
+            <ul id="questions-list">
+                {% if course.quizzes.all %}
+                    {% for quiz in course.quizzes.all %}
+                        <li><strong>{{ quiz.title }}</strong></li>
+                        <ul>
+                            {% for question in quiz.questions.all %}
+                                <li>{{ question.text }}</li>
+                                <ul>
+                                    {% for answer in question.answers.all %}
+                                        <li>{{ answer.text }}{% if answer.is_correct %} (Правильный ответ){% endif %}</li>
+                                    {% endfor %}
+                                </ul>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            {% else %}
+                <p>Вопросы отсутствуют</p>
+            {% endif %}
+        </ul>
+    </div>
+    </div>
+</main>
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('.lessons-list a').click(function(e) {
+        e.preventDefault();
+        var videoUrl = $(this).data('video-url');
+        var pdfUrl = $(this).data('pdf-url');
+        $('#lesson-video source').attr('src', videoUrl);
+        $('#lesson-video')[0].load();
+        $('#pdf-link').attr('href', pdfUrl);
+    });
+
+    $('.tab-btn').click(function() {
+        var tab = $(this).data('tab');
+        $('.tab-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.tab-content').removeClass('active');
+        $('#' + tab).addClass('active');
+    });
+});
+</script>
+</body>
+</html>

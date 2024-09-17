@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+
+<header class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">ADMIN</span>
+        <a href="{% url 'logout' %}" class="btn btn-outline-light" id="logout-btn">Выйти</a>
+    </div>
+</header>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                <a class="nav-link active" id="v-pills-students-tab" data-toggle="pill" href="#v-pills-students" role="tab" aria-controls="v-pills-students" aria-selected="true">Студенты</a>
+                <a class="nav-link" id="v-pills-edit-course-tab" data-toggle="pill" href="#v-pills-edit-course" role="tab" aria-controls="v-pills-edit-course" aria-selected="false">Создать уроки/модуль</a>
+                <a class="nav-link" id="v-pills-manage-course-tab" data-toggle="pill" href="#v-pills-manage-course" role="tab" aria-controls="v-pills-manage-course" aria-selected="false">Создать/удалить курс</a>
+                <a class="nav-link" id="v-pills-create-quiz-tab" data-toggle="pill" href="#v-pills-create-quiz" role="tab" aria-controls="v-pills-create-quiz" aria-selected="false">Create quiz</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-students" role="tabpanel" aria-labelledby="v-pills-students-tab">
+                    <h2>Студенты</h2>
+                    <div class="student-list">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Имя студента</th>
+                                    <th>Название курса</th>
+                                    <th>Процент прохождения курса</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in students %}
+                                <tr>
+                                    <td>{{ student.username }}</td>
+                                    <td>{{ student.course }}</td>
+                                    <td>{{ student.progress }}%</td>
+                                    <td>
+                                        <form method="post" action="{% url 'delete_student' student.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Вы уверены?')">Удалить</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <h2>Добавить студента</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ student_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_student">Добавить студента</button>
+                    </form>
+                </div>
+                <div class="tab-pane fade" id="v-pills-edit-course" role="tabpanel" aria-labelledby="v-pills-edit-course-tab">
+                    <h2>Создать урок</h2>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ lesson_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_lesson">Создать урок</button>
+                    </form>
+                    <h2>Создать модуль</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ module_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_module">Создать модуль</button>
+                    </form>
+                </div>
+                <div class="tab-pane fade" id="v-pills-manage-course" role="tabpanel" aria-labelledby="v-pills-manage-course-tab">
+                    <h2>Создать курс</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ course_form.as_p }}
+                        <button type="submit" class="btn btn-primary" name="add_course">Создать курс</button>
+                    </form>
+                    <h2>Удалить курс</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="course_id">Выберите курс:</label>
+                            <select id="course_id" name="course_id" class="form-control">
+                                {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-danger" name="delete_course">Удалить курс</button>
+                    </form>
+                </div>
+
+                <div class="tab-pane fade" id="v-pills-create-quiz" role="tabpanel" aria-labelledby="v-pills-create-quiz-tab">
+                    <h2>Создать quiz</h2>
+                    <form method="post" id="quiz-form">
+                        {% csrf_token %}
+                        <!-- Поле для выбора модуля -->
+                        <div class="form-group">
+                            <label for="select-module">Выберите модуль:</label>
+                            <select id="select-module" name="select_module" class="form-control" required>
+                                {% for module in modules %}
+                                <option value="{{ module.id }}">{{ module.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Поле для выбора урока -->
+                        <div class="form-group">
+                            <label for="select-lesson">Выберите урок:</label>
+                            <select id="select-lesson" name="select_lesson" class="form-control" required>
+                                {% for lesson in lessons %}
+                                <option value="{{ lesson.id }}">{{ lesson.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Поле для заголовка  -->
+                        <div class="form-group">
+                            <label for="quiz-title">Название вопросика:</label>
+                            <input type="text" class="form-control" id="quiz-title" name="quiz_title" required>
+                        </div>
+
+                        <!-- Контейнер для вопросов и ответов -->
+                        <div id="qa-container">
+                            <div class="question-group">
+                                <div class="form-group">
+                                    <label><strong>1 Вопрос</strong></label>
+                                    <input type="text" class="form-control" name="question[]" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Ответ 1" name="answer[]" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Ответ 2" name="answer[]" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" placeholder="Ответ 3" name="answer[]" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Кнопки для добавления вопроса и ответа -->
+                        <div class="d-flex justify-content-start mb-3">
+                            <button type="button" class="btn btn-secondary mr-2" onclick="addQuestion()">+ Добавить вопрос</button>
+                        </div>
+
+                        <!-- Кнопка для сохранения -->
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Скрипты для добавления вопросов и ответов -->
+<script>
+let questionCount = 1;
+
+function addQuestion() {
+    questionCount++;
+    const qaContainer = document.getElementById('qa-container');
+
+    // Добавляем новый вопрос с нумерацией
+    const questionDiv = document.createElement('div');
+    questionDiv.classList.add('question-group');
+    questionDiv.innerHTML = `
+        <div class="form-group">
+            <label><strong>${questionCount} Вопрос</strong></label>
+            <input type="text" class="form-control" name="question[]" required>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Ответ 1" name="answer[]" required>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Ответ 2" name="answer[]" required>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Ответ 3" name="answer[]" required>
+        </div>
+    `;
+
+    // Добавляем новый вопрос и его ответы в контейнер
+    qaContainer.appendChild(questionDiv);
+}
+</script>
+
+</body>
+</html>
