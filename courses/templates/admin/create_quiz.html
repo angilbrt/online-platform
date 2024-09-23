@@ -1,0 +1,19 @@
+<!-- templates/admin/create_quiz.html -->
+<form method="POST">
+    {% csrf_token %}
+    {{ quiz_form.as_p }}
+
+    <h3>Questions</h3>
+    {% for i in "12345" %}
+        <div>
+            <label for="question_{{ i }}_text">Question {{ i }}:</label>
+            <input type="text" name="question_{{ i }}_text">
+        </div>
+        <div>
+            <label for="question_{{ i }}_answer">Answer {{ i }}:</label>
+            <input type="text" name="question_{{ i }}_answer">
+        </div>
+    {% endfor %}
+
+    <button type="submit">Create Quiz</button>
+</form>

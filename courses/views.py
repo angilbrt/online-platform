@@ -1,8 +1,8 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import StudentRegistrationForm, LessonCreationForm, ModuleCreationForm, CourseCreationForm
-from .models import User, Lesson, Module, Course, StudentProgress, Quiz, Question, Answer
+from .forms import StudentRegistrationForm, LessonCreationForm, ModuleCreationForm, CourseCreationForm, QuizCreationForm
+from .models import User, Lesson, Module, Course, StudentProgress, Quiz, Question
 
 
 def login_view(request):
@@ -129,26 +129,28 @@ def delete_module(request, module_id):
 @login_required
 def create_quiz(request):
     if request.method == 'POST':
-        quiz_form = QuizForm(request.POST)
+        quiz_form = QuizCreationForm(request.POST)
         if quiz_form.is_valid():
             quiz = quiz_form.save()
-
-            # Обрабатываем вопросы и ответы
-            questions = request.POST.getlist('question[]')
-            answers = request.POST.getlist('answer[]')
-
-            # Предполагаем, что на каждый вопрос будет три ответа
-            for i, question_text in enumerate(questions):
-                question = Question.objects.create(quiz=quiz, text=question_text)
-                for j in range(3):  # три ответа для каждого вопроса
-                    answer_text = answers[i * 3 + j]
-                    Answer.objects.create(question=question, text=answer_text, is_correct=False)
-
-            return redirect('admin_page')
+            for i in range(1, 6):  # Например, создаем 5 вопросов
+                question_text = request.POST.get(f'question_{i}_text')
+                question_answer = request.POST.get(f'question_{i}_answer')
+                Question.objects.create(quiz=quiz, text=question_text, answer=question_answer)
+            return redirect('quiz_list')
     else:
-        quiz_form = QuizForm()
+        quiz_form = QuizCreationForm()
 
-    modules = Module.objects.all()
-    lessons = Lesson.objects.all()
-    return render(request, 'courses/admin_page.html', {'quiz_form': quiz_form, 'modules': modules, 'lessons': lessons})
+    return render(request, 'admin/create_quiz.html', {'quiz_form': quiz_form})
 
+@login_required
+def quiz_detail(request, quiz_id):
+    quiz = Quiz.objects.get(id=quiz_id)
+    if request.method == 'POST':
+        score = 0
+        for question in quiz.questions.all():
+            answer = request.POST.get(f'question_{question.id}')
+            if answer == question.answer:
+                score += 1
+        return render(request, 'student/quiz_result.html', {'score': score, 'total': quiz.questions.count()})
+
+    return render(request, 'student/quiz_detail.html', {'quiz': quiz})

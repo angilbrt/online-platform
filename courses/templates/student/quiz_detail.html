@@ -1,0 +1,12 @@
+<!-- templates/student/quiz_detail.html -->
+<h2>{{ quiz.title }}</h2>
+<form method="POST">
+    {% csrf_token %}
+    {% for question in quiz.questions.all %}
+        <div>
+            <label>{{ question.text }}</label>
+            <input type="text" name="question_{{ question.id }}">
+        </div>
+    {% endfor %}
+    <button type="submit">Submit Quiz</button>
+</form>

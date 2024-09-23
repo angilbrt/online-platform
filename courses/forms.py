@@ -2,7 +2,7 @@
 # courses/forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, Lesson, Module, Course
+from .models import User, Lesson, Module, Course, Quiz, Question
 
 class StudentRegistrationForm(UserCreationForm):
     class Meta:
@@ -29,3 +29,13 @@ class CourseCreationForm(forms.ModelForm):
         widgets = {
             'modules': forms.CheckboxSelectMultiple
         }
+
+class QuizCreationForm(forms.ModelForm):
+    class Meta:
+        model = Quiz
+        fields = ['title']
+
+class QuestionCreationForm(forms.ModelForm):
+    class Meta:
+        model = Question
+        fields = ['text', 'answer']

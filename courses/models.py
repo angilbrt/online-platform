@@ -2,6 +2,7 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
+
 class User(AbstractUser):
     is_student = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
@@ -53,16 +54,21 @@ class StudentProgress(models.Model):
         return f'{self.student.username} - {self.course.title} ({self.progress}%)'
 
 class Quiz(models.Model):
-    title = models.CharField(max_length=200)
-    module = models.ForeignKey(Module, on_delete=models.CASCADE)
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, null=True, blank=True)
+    title = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
 
 class Question(models.Model):
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    text = models.CharField(max_length=500)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='questions')
+    text = models.TextField()
+    answer = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.text
 
-class Answer(models.Model):
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    text = models.CharField(max_length=200)
-    is_correct = models.BooleanField(default=False)
+# class Answer(models.Model):
+#     question = models.ForeignKey(Question, on_delete=models.CASCADE)
+#     text = models.CharField(max_length=200)
+#     is_correct = models.BooleanField(default=False)
